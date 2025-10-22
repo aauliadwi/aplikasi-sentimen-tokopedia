@@ -212,9 +212,9 @@ elif page == "Tabel Analisis":
     st.subheader("📈 Grafik Performa Model (F1-Score)")
     df_ringkas = pd.DataFrame(
         [
-            {"Model": "GRU", "Accuracy": 0.8814, "Precision": 0.8094, "Recall": 0.8072, "F1-Score": 0.8083},
-            {"Model": "Naive Bayes", "Accuracy": 0.8842, "Precision": 0.8646, "Recall": 0.7421, "F1-Score": 0.7987},
-            {"Model": "LightGBM", "Accuracy": 0.8556, "Precision": 0.7832, "Recall": 0.7377, "F1-Score": 0.7597},
+            {"Model": "GRU", "Accuracy": 0.8814, "Precision": 0.8093, "Recall": 0.8072, "F1-Score": 0.8082},
+            {"Model": "Naive Bayes", "Accuracy": 0.8841, "Precision": 0.8646, "Recall": 0.7420, "F1-Score": 0.7986},
+            {"Model": "LightGBM", "Accuracy": 0.8585, "Precision": 0.7880, "Recall": 0.7429, "F1-Score": 0.7648},
         ]
     )
     df_ringkas_sorted = df_ringkas.sort_values(by="F1-Score", ascending=False, ignore_index=True)
@@ -227,9 +227,9 @@ elif page == "Tabel Analisis":
     st.subheader("⚙️ Tabel Efisiensi Komputasi")
     df_efisiensi = pd.DataFrame(
         [
-            {"Model": "GRU", "Waktu Training (s)": 326.45, "Waktu Inferensi (ms)": 4.78},
-            {"Model": "Naive Bayes", "Waktu Training (s)": 2.51,  "Waktu Inferensi (ms)": 0.35},
-            {"Model": "LightGBM", "Waktu Training (s)": 8.79,   "Waktu Inferensi (ms)": 0.92},
+            {"Model": "GRU", "Waktu Training (s)": 581.47, "Waktu Inferensi (ms)": 17.4},
+            {"Model": "Naive Bayes", "Waktu Training (s)": 0.01,  "Waktu Inferensi (ms)": 0.00},
+            {"Model": "LightGBM", "Waktu Training (s)": 52.96,   "Waktu Inferensi (ms)": 0.13},
         ]
     )
     df_efisiensi_sorted = df_efisiensi.sort_values(
@@ -269,4 +269,4 @@ elif page == "Tentang":
                 use_container_width=True,
             )
     else:
-        st.info("File manual belum ditemukan di `assets/Manual_Aplikasi.pdf`.")
+        st.info("File manual belum ditemukan di `assets/Manual_Book.pdf`.")
