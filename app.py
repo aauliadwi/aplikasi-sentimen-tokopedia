@@ -163,15 +163,13 @@ if page == "Beranda":
     st.markdown(
         """
         Aplikasi ini dirancang untuk menganalisis sentimen dari ulasan pengguna Tokopedia, apakah bersifat positif atau negatif.
-        Tujuannya adalah untuk membantu memahami pendapat masyarakat terhadap layanan Tokopedia secara otomatis dan cepat dengan menggunakan 3 metode, yaitu:
-
         - 🧠 **Naive Bayes**: Metode sederhana yang menghitung seberapa besar kemungkinan suatu ulasan bersifat positif atau negatif berdasarkan kata yang digunakan.  
         
         - 🌳 **LightGBM**: Sistem pembelajaran mesin yang menggabungkan banyak keputusan kecil untuk mencapai hasil prediksi yang lebih baik.  
         
         - 🔁 **GRU**: Jaringan saraf yang mampu mengenali makna dan alur kalimat, sehingga memberikan pemahaman konteks yang lebih mendalam.
 
-        Hasil analisis ditampilkan dalam bentuk prediksi sentimen, grafik akurasi, dan perbandingan performa model secara interaktif.
+        Hasil analisis ditampilkan dalam bentuk prediksi sentimen, grafik akurasi, dan perbandingan performa dari ketiga model.
 
         Gunakan menu di kiri untuk mencoba analisis atau melihat perbandingan performa.
         """
@@ -227,9 +225,9 @@ elif page == "Tabel Analisis":
     st.subheader("⚙️ Tabel Efisiensi Komputasi")
     df_efisiensi = pd.DataFrame(
         [
-            {"Model": "GRU", "Waktu Training (s)": 581.47, "Waktu Inferensi (ms)": 17.4},
-            {"Model": "Naive Bayes", "Waktu Training (s)": 0.01,  "Waktu Inferensi (ms)": 0.00},
-            {"Model": "LightGBM", "Waktu Training (s)": 52.96,   "Waktu Inferensi (ms)": 0.13},
+            {"Model": "GRU", "Waktu Training (s)": 877.72, "Waktu Inferensi (ms)": 17.19},
+            {"Model": "Naive Bayes", "Waktu Training (s)": 0.027,  "Waktu Inferensi (ms)": 0.003},
+            {"Model": "LightGBM", "Waktu Training (s)": 47.68,   "Waktu Inferensi (ms)": 0.105},
         ]
     )
     df_efisiensi_sorted = df_efisiensi.sort_values(
@@ -262,7 +260,7 @@ elif page == "Tentang":
     if pdf_path.exists():
         with open(pdf_path, "rb") as f:
             st.download_button(
-                label="📥 Unduh Manual (PDF)",
+                label="📥 Unduh Buku Manual (PDF)",
                 data=f.read(),
                 file_name="Manual_Book.pdf",
                 mime="application/pdf",
