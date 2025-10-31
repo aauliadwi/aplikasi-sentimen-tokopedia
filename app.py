@@ -189,7 +189,7 @@ elif page == "Tabel Analisis":
     st.subheader("📈 Grafik Performa Model (F1-Score)")
     df_ringkas = pd.DataFrame(
         [
-            {"Model": "GRU", "Accuracy": 0.8814, "Precision": 0.8093, "Recall": 0.8072, "F1-Score": 0.8082},
+            {"Model": "GRU", "Accuracy": 0.8852, "Precision": 0.8252, "Recall": 0.7984, "F1-Score": 0.8116},
             {"Model": "Naive Bayes", "Accuracy": 0.8841, "Precision": 0.8646, "Recall": 0.7420, "F1-Score": 0.7986},
             {"Model": "LightGBM", "Accuracy": 0.8585, "Precision": 0.7880, "Recall": 0.7429, "F1-Score": 0.7648},
         ]
