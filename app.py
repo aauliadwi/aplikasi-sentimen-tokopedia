@@ -10,18 +10,13 @@ import tensorflow as tf
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.preprocessing.text import tokenizer_from_json
 
-# =========
-# Page config
-# =========
 st.set_page_config(
     page_title="Sistem Klasifikasi Ulasan Tokopedia",
     page_icon="📊",
     layout="centered"
 )
 
-# ==============
-# Pra-pemrosesan
-# ==============
+# Pra-pemrosesan Data
 def clean_text_ml(s: str) -> str:
     s = unicodedata.normalize("NFKC", str(s)).lower()
     s = re.sub(r"(https?://\S+|www\.\S+)", " ", s)
@@ -38,31 +33,25 @@ def clean_light(s: str) -> str:
     s = re.sub(r"\s+", " ", s).strip()
     return s
 
-# ==================
-# Load All Artefacts
-# ==================
+# Memuat artefak models
 @st.cache_resource(show_spinner=True)
 def load_artifacts():
     mdir = Path("models")
     if not mdir.exists():
         raise FileNotFoundError("Folder 'models' tidak ditemukan.")
 
-    # klasik
     tfidf = joblib.load(mdir / "tfidf.pkl")
     svd = joblib.load(mdir / "svd.pkl")
     nb = joblib.load(mdir / "nb.pkl")
     lgbm = joblib.load(mdir / "lgbm.pkl")
 
-    # tokenizer
     with open(mdir / "tokenizer.json", "r", encoding="utf-8") as f:
         tok = tokenizer_from_json(f.read())
 
-    # meta GRU
     meta = joblib.load(mdir / "gru_meta.pkl")
     MAXLEN = int(meta.get("MAXLEN", 150))
     BEST_THR = float(meta.get("best_thr", 0.5))
 
-    # GRU SavedModel
     sm_dir = mdir / "gru_savedmodel"
     if not sm_dir.exists():
         raise FileNotFoundError(
@@ -75,9 +64,8 @@ def load_artifacts():
 
     return tfidf, svd, nb, lgbm, tok, MAXLEN, BEST_THR, sig
 
-# ======================
-# Prediksi per kategori
-# ======================
+
+# Prediksi per metode
 def predict_nb_lgbm(text: str, tfidf, svd, nb, lgbm):
     clean = clean_text_ml(text)
     X = tfidf.transform([clean])
@@ -103,7 +91,7 @@ def predict_gru(text: str, tok, MAXLEN: int, BEST_THR: float, gru_sig):
     label = 1 if proba >= BEST_THR else 0
     return label, proba
 
-# ===== Util tampilan hasil satu baris =====
+# Tampilan Hasil
 def render_row(model_name: str, proba: float, label: int):
     try:
         proba = float(proba)
@@ -129,11 +117,9 @@ def render_row(model_name: str, proba: float, label: int):
             unsafe_allow_html=True,
         )
 
-# =========
-# UI (App)
-# =========
+# Tampilan Aplikasi
 
-# --- Sidebar ---
+# Sidebar
 st.sidebar.markdown("### 📊 Selamat Datang!")
 page = st.sidebar.radio(
     label="",
@@ -142,7 +128,7 @@ page = st.sidebar.radio(
     label_visibility="collapsed",
 )
 
-# --- Load artefak SEKALI & share ke semua halaman ---
+# Memuat artifacts
 if "artifacts" not in st.session_state:
     try:
         st.session_state.artifacts = load_artifacts()
@@ -151,23 +137,19 @@ if "artifacts" not in st.session_state:
         st.code(str(e))
         st.stop()
 
-# Unpack untuk dipakai di bawah
 tfidf, svd, nb, lgbm, tok, MAXLEN, BEST_THR, GRU_SIG = st.session_state.artifacts
 
-# =====================
-# Halaman: Beranda
-# =====================
+# Halaman Beranda
 if page == "Beranda":
     st.markdown("## Perancangan Sistem Klasifikasi Ulasan pada Aplikasi Tokopedia Menggunakan Metode Naïve Bayes, LightGBM, dan GRU")
-    # st.caption("Selamat Datang di Aplikasi Analisis Sentimen Ulasan Tokopedia.")
     st.markdown(
         """
         Aplikasi ini dirancang untuk menganalisis sentimen dari ulasan pengguna Tokopedia, apakah bersifat positif atau negatif.
-        - 🧠 **Naive Bayes**: Metode sederhana yang menghitung seberapa besar kemungkinan suatu ulasan bersifat positif atau negatif berdasarkan kata yang digunakan.  
+        - **Naive Bayes**: Metode sederhana yang menghitung seberapa besar kemungkinan suatu ulasan bersifat positif atau negatif berdasarkan kata yang digunakan.  
         
-        - 🌳 **LightGBM**: Sistem pembelajaran mesin yang menggabungkan banyak keputusan kecil untuk mencapai hasil prediksi yang lebih baik.  
+        - **LightGBM**: Sistem pembelajaran mesin yang menggabungkan banyak keputusan kecil untuk mencapai hasil prediksi yang lebih baik.  
         
-        - 🔁 **GRU**: Jaringan saraf yang mampu mengenali makna dan alur kalimat, sehingga memberikan pemahaman konteks yang lebih mendalam.
+        - **GRU**: Jaringan saraf yang mampu mengenali makna dan alur kalimat, sehingga memberikan pemahaman konteks yang lebih mendalam.
 
         Hasil analisis ditampilkan dalam bentuk prediksi sentimen, grafik akurasi, dan perbandingan performa dari ketiga model.
 
@@ -175,9 +157,7 @@ if page == "Beranda":
         """
     )
 
-# =====================
-# Halaman: Analisis
-# =====================
+# Halaman Analisis
 elif page == "Analisis":
     text_input = st.text_area("📝 Masukkan ulasan:", height=130, placeholder="Tulis ulasan di sini...")
     analyze = st.button("Analisis Sentimen")
@@ -198,14 +178,13 @@ elif page == "Analisis":
                 st.code(str(e))
                 st.stop()
 
-            st.subheader("🔍 Hasil Prediksi")
+            st.subheader("Hasil Prediksi")
             render_row("Naive Bayes", nb_proba, nb_label)
             render_row("LightGBM", lgb_proba, lgb_label)
             render_row("GRU", gru_proba, gru_label)
 
-# =====================
-# Halaman: Tabel Analisis
-# =====================
+
+# Halaman Tabel Analisis
 elif page == "Tabel Analisis":
     st.subheader("📈 Grafik Performa Model (F1-Score)")
     df_ringkas = pd.DataFrame(
@@ -225,9 +204,9 @@ elif page == "Tabel Analisis":
     st.subheader("⚙️ Tabel Efisiensi Komputasi")
     df_efisiensi = pd.DataFrame(
         [
-            {"Model": "GRU", "Waktu Training (s)": 877.72, "Waktu Inferensi (ms)": 17.19},
-            {"Model": "Naive Bayes", "Waktu Training (s)": 0.027,  "Waktu Inferensi (ms)": 0.003},
-            {"Model": "LightGBM", "Waktu Training (s)": 47.68,   "Waktu Inferensi (ms)": 0.105},
+            {"Model": "GRU", "Waktu Training (s)": 902.36, "Waktu Inferensi (ms)": 13.91},
+            {"Model": "Naive Bayes", "Waktu Training (s)": 0.018,  "Waktu Inferensi (ms)": 0.002},
+            {"Model": "LightGBM", "Waktu Training (s)": 44.37,   "Waktu Inferensi (ms)": 0.104},
         ]
     )
     df_efisiensi_sorted = df_efisiensi.sort_values(
@@ -244,9 +223,7 @@ elif page == "Tabel Analisis":
         mime="text/csv",
     )
 
-# =====================
-# Halaman: Tentang
-# =====================
+# Halaman Tentang
 elif page == "Tentang":
     st.subheader("ℹ️ Tentang Aplikasi")
     st.markdown(
@@ -260,7 +237,7 @@ elif page == "Tentang":
     if pdf_path.exists():
         with open(pdf_path, "rb") as f:
             st.download_button(
-                label="📥 Unduh Buku Manual (PDF)",
+                label="Unduh Buku Manual (PDF)",
                 data=f.read(),
                 file_name="Manual_Book.pdf",
                 mime="application/pdf",
